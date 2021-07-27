@@ -98,6 +98,59 @@ RSpec.describe User, type: :model do
       )
       expect(@user.valid?).to be false
     end
+  end
 
+  describe '.authenticate_with_credentials' do
+    it 'new user passes authentication' do
+      @user = User.new(
+        first_name: 'John',
+        last_name: 'Doe',
+        email: 'test@test.com',
+        password: 'test1234',
+        password_confirmation: 'test1234'
+      )
+      @user.save
+      @user = User.authenticate_with_credentials(@user.email, @user.password)
+      expect(@user).not_to be nil
+    end
+
+    it 'new user fails authentication' do
+      @user = User.new(
+        first_name: 'John',
+        last_name: 'Doe',
+        email: 'test@test.com',
+        password: 'test1234',
+        password_confirmation: 'test1234'
+      )
+      @user.save
+      @user = User.authenticate_with_credentials(@user.email, 'wrongpassword')
+      expect(@user).to be nil
+    end
+
+    it 'new user passes authentication with extra space in email' do
+      @user = User.new(
+        first_name: 'John',
+        last_name: 'Doe',
+        email: 'test@test.com',
+        password: 'test1234',
+        password_confirmation: 'test1234'
+      )
+      @user.save
+      @user = User.authenticate_with_credentials('  test@test.com  ', @user.password)
+      expect(@user).not_to be nil
+    end
+
+    it 'new user passes authentication with wrong casing in email' do
+      @user = User.new(
+        first_name: 'John',
+        last_name: 'Doe',
+        email: 'test@test.com',
+        password: 'test1234',
+        password_confirmation: 'test1234'
+      )
+      @user.save
+      @user = User.authenticate_with_credentials('TesT@test.com', @user.password)
+      expect(@user).not_to be nil
+    end
   end
 end
